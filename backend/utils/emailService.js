@@ -243,18 +243,18 @@ async function sendEventRegistrationEmail(
  */
 async function sendRegistrationEmail(registration) {
 	if (!registration.event || !registration.participant) {
-		throw new Error('Регистрация должна содержать данные события и участника');
+		throw new Error('Регистрация должна содержать данные события и участника')
 	}
 
-	const event = registration.event;
-	const participant = registration.participant;
-	
+	const event = registration.event
+	const participant = registration.participant
+
 	return await sendEventRegistrationEmail(
 		participant.email,
 		participant.firstName + ' ' + participant.lastName,
 		event,
 		registration.registrationNumber
-	);
+	)
 }
 
 module.exports = {
