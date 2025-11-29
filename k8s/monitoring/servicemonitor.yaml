@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: backend-metrics
+  namespace: events-app
+  labels:
+    app: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  endpoints:
+    - port: http
+      interval: 30s
+      path: /metrics
+---
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: frontend-metrics
+  namespace: events-app
+  labels:
+    app: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  endpoints:
+    - port: http
+      interval: 30s
+      path: /metrics

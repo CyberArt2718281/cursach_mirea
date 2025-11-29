@@ -10,9 +10,11 @@ const app = express();
 // Middleware
 app.use(cors({
   origin: function(origin, callback) {
-    const allowedOrigins = ['http://localhost:4200', 'http://127.0.0.1:4200'];
-    // Разрешаем запросы без origin (например, Postman)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    // Разрешаем все localhost и 127.0.0.1 с любым портом, а также 192.168.49.2
+    if (!origin || 
+        origin.startsWith('http://localhost') || 
+        origin.startsWith('http://127.0.0.1') ||
+        origin.startsWith('http://192.168.49.2')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
