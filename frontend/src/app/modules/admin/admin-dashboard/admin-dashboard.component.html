@@ -1,0 +1,145 @@
+<div class="container">
+  <h1 style="margin-bottom: 30px;">📊 Панель администратора</h1>
+
+  <div *ngIf="loading" class="loading">Загрузка данных...</div>
+
+  <div *ngIf="!loading">
+    <!-- Статистика -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value">{{ stats.totalEvents }}</div>
+        <div class="stat-label">Всего событий</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ stats.activeEvents }}</div>
+        <div class="stat-label">Активных событий</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ stats.totalRegistrations }}</div>
+        <div class="stat-label">Всего регистраций</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💺</div>
+        <div class="stat-value">{{ stats.totalOccupied }} / {{ stats.totalCapacity }}</div>
+        <div class="stat-label">Занято мест</div>
+      </div>
+    </div>
+
+    <!-- Быстрые действия -->
+    <div class="card" style="margin-top: 30px;">
+      <div class="card-header">
+        <h2 class="card-title">Быстрые действия</h2>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button routerLink="/admin/events/new" class="btn btn-primary">
+          ➕ Создать событие
+        </button>
+        <button routerLink="/events" class="btn btn-secondary">
+          📋 Список событий
+        </button>
+        <button routerLink="/admin/registrations" class="btn btn-secondary">
+          📝 Регистрации
+        </button>
+      </div>
+    </div>
+
+    <!-- Список событий -->
+    <div class="card" style="margin-top: 30px;">
+      <div class="card-header">
+        <h2 class="card-title">События</h2>
+      </div>
+      
+      <div *ngIf="events.length === 0" class="text-center" style="padding: 40px;">
+        <h3>Нет событий</h3>
+        <p>Создайте первое событие, чтобы начать работу</p>
+        <button routerLink="/admin/events/new" class="btn btn-primary" style="margin-top: 15px;">
+          Создать событие
+        </button>
+      </div>
+
+      <div *ngIf="events.length > 0" class="events-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Название</th>
+              <th>Дата</th>
+              <th>Статус</th>
+              <th>Заполненность</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of events">
+              <td><strong>{{ event.title }}</strong></td>
+              <td>{{ formatDate(event.date) }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + event.status">
+                  {{ event.status }}
+                </span>
+              </td>
+              <td>
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="getOccupancyRate(event)"></div>
+                </div>
+                <span style="font-size: 12px; color: #6c757d;">
+                  {{ event.capacity - event.availableSeats }} / {{ event.capacity }} ({{ getOccupancyRate(event) }}%)
+                </span>
+              </td>
+              <td>
+                <button [routerLink]="['/events', event._id]" class="btn btn-sm btn-secondary">
+                  👁️ Просмотр
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Последние регистрации -->
+    <div class="card" style="margin-top: 30px;">
+      <div class="card-header">
+        <h2 class="card-title">Последние регистрации</h2>
+      </div>
+      
+      <div *ngIf="recentRegistrations.length === 0" class="text-center" style="padding: 20px;">
+        <p>Регистраций пока нет</p>
+      </div>
+
+      <div *ngIf="recentRegistrations.length > 0">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Участник</th>
+              <th>Email</th>
+              <th>Событие</th>
+              <th>Статус</th>
+              <th>Дата</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let reg of recentRegistrations">
+              <td>{{ reg.participant.firstName }} {{ reg.participant.lastName }}</td>
+              <td>{{ reg.participant.email }}</td>
+              <td>{{ getEventTitle(reg.event) }}</td>
+              <td>
+                <span class="status-badge" [class]="'status-' + reg.status">
+                  {{ reg.status }}
+                </span>
+              </td>
+              <td>{{ formatDate(reg.createdAt) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="text-center" style="margin-top: 15px;">
+          <button routerLink="/admin/registrations" class="btn btn-primary">
+            Посмотреть все регистрации →
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

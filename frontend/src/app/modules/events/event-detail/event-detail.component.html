@@ -1,0 +1,242 @@
+<div class="container">
+  <div *ngIf="loading" class="loading">Загрузка...</div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="event && !loading" class="event-detail-wrapper">
+    <button
+      (click)="router.navigate(['/events'])"
+      class="btn btn-secondary back-button"
+    >
+      ← Назад к списку
+    </button>
+
+    <!-- Hero Section with Image -->
+    <div class="event-hero">
+      <div
+        class="event-hero-image"
+        [style.background-image]="
+          'url(' + (event.imageUrl || 'assets/default-event.jpg') + ')'
+        "
+      >
+        <div class="hero-overlay">
+          <div class="hero-badges">
+            <span class="event-badge">{{ event.category }}</span>
+            <span class="event-status" [class]="'status-' + event.status">{{
+              event.status
+            }}</span>
+          </div>
+          <h1 class="hero-title">{{ event.title }}</h1>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="event-content-grid">
+      <!-- Left Column: Main Info -->
+      <div class="main-column">
+        <!-- Key Information Card -->
+        <div class="card info-card">
+          <h2 class="section-title">Информация</h2>
+          <div class="info-grid">
+            <div class="info-item">
+              <div class="info-icon">📅</div>
+              <div class="info-content">
+                <div class="info-label">Дата начала</div>
+                <div class="info-value">{{ formatDate(event.date) }}</div>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="event.endDate">
+              <div class="info-icon">🏁</div>
+              <div class="info-content">
+                <div class="info-label">Дата окончания</div>
+                <div class="info-value">{{ formatDate(event.endDate) }}</div>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">📍</div>
+              <div class="info-content">
+                <div class="info-label">Место</div>
+                <div class="info-value">{{ event.location }}</div>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">💺</div>
+              <div class="info-content">
+                <div class="info-label">Места</div>
+                <div
+                  class="info-value"
+                  [class.text-danger]="event.availableSeats < 10"
+                >
+                  {{ event.availableSeats }} из {{ event.capacity }}
+                </div>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">💰</div>
+              <div class="info-content">
+                <div class="info-label">Стоимость</div>
+                <div class="info-value">
+                  <span *ngIf="event.price > 0">{{ event.price }} ₽</span>
+                  <span *ngIf="event.price === 0" class="text-success"
+                    >Бесплатно</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div class="info-item" *ngIf="event.registrationDeadline">
+              <div class="info-icon">⏰</div>
+              <div class="info-content">
+                <div class="info-label">Дедлайн регистрации</div>
+                <div class="info-value">
+                  {{ formatDate(event.registrationDeadline) }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description Card -->
+        <div class="card description-card">
+          <h2 class="section-title">Описание</h2>
+          <p class="description-text">{{ event.description }}</p>
+        </div>
+
+        <!-- Tags Card -->
+        <div class="card tags-card" *ngIf="event.tags && event.tags.length > 0">
+          <h2 class="section-title">Теги</h2>
+          <div class="tags">
+            <span *ngFor="let tag of event.tags" class="tag">{{ tag }}</span>
+          </div>
+        </div>
+
+        <!-- Stats Card (for authenticated users) -->
+        <div
+          *ngIf="authService.isAuthenticated() && stats"
+          class="card stats-card"
+        >
+          <h2 class="section-title">Статистика события</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-value">{{ stats.registeredCount }}</div>
+              <div class="stat-label">Зарегистрировано</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">✅</div>
+              <div class="stat-value">{{ stats.confirmedCount }}</div>
+              <div class="stat-label">Подтверждено</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🎫</div>
+              <div class="stat-value">{{ stats.attendedCount }}</div>
+              <div class="stat-label">Посетило</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💳</div>
+              <div class="stat-value">{{ stats.paidCount }}</div>
+              <div class="stat-label">Оплачено</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+              <div class="stat-value">{{ stats.occupancyRate }}</div>
+              <div class="stat-label">Заполненность</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Sidebar -->
+      <div class="sidebar-column">
+        <!-- Registration Card -->
+        <div
+          class="card registration-card"
+          *ngIf="event.availableSeats > 0 && event.status === 'активное'"
+        >
+          <div class="registration-content">
+            <div class="registration-price">
+              <span class="price-label">Стоимость</span>
+              <span class="price-value" *ngIf="event.price > 0"
+                >{{ event.price }} ₽</span
+              >
+              <span class="price-value free" *ngIf="event.price === 0"
+                >Бесплатно</span
+              >
+            </div>
+            <button
+              [routerLink]="['/register', event._id]"
+              class="btn btn-register"
+            >
+              ✅ Зарегистрироваться
+            </button>
+            <div class="seats-info">
+              <span class="seats-icon">💺</span>
+              <span
+                class="seats-text"
+                [class.seats-low]="event.availableSeats < 10"
+              >
+                Осталось {{ event.availableSeats }} мест
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sold Out Card -->
+        <div class="card sold-out-card" *ngIf="event.availableSeats === 0">
+          <div class="sold-out-content">
+            <div class="sold-out-icon">🎫</div>
+            <h3>Все места заняты</h3>
+            <p>К сожалению, регистрация на это событие закрыта</p>
+          </div>
+        </div>
+
+        <!-- Organizer Card -->
+        <div class="card organizer-card">
+          <h3 class="organizer-title">Организатор</h3>
+          <div class="organizer-content">
+            <div class="organizer-item">
+              <span class="organizer-icon">👤</span>
+              <div class="organizer-info">
+                <div class="organizer-label">Имя</div>
+                <div class="organizer-value">{{ event.organizer.name }}</div>
+              </div>
+            </div>
+            <div class="organizer-item">
+              <span class="organizer-icon">📧</span>
+              <div class="organizer-info">
+                <div class="organizer-label">Email</div>
+                <div class="organizer-value">
+                  <a href="mailto:{{ event.organizer.email }}">{{
+                    event.organizer.email
+                  }}</a>
+                </div>
+              </div>
+            </div>
+            <div class="organizer-item" *ngIf="event.organizer.phone">
+              <span class="organizer-icon">📞</span>
+              <div class="organizer-info">
+                <div class="organizer-label">Телефон</div>
+                <div class="organizer-value">{{ event.organizer.phone }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Actions Card -->
+        <div *ngIf="authService.isAdmin()" class="card admin-card">
+          <h3 class="admin-title">Управление</h3>
+          <div class="admin-actions">
+            <button
+              [routerLink]="['/admin/events/edit', event._id]"
+              class="btn btn-edit"
+            >
+              ✏️ Редактировать
+            </button>
+            <button (click)="deleteEvent()" class="btn btn-delete">
+              🗑️ Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

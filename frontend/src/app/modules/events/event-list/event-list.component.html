@@ -1,0 +1,124 @@
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Предстоящие события</h1>
+    </div>
+
+    <!-- Фильтры и поиск -->
+    <div class="filters-wrapper">
+      <div class="filters-grid">
+        <select
+          [(ngModel)]="selectedCategory"
+          (change)="onFilterChange()"
+          class="form-control"
+        >
+          <option value="">Все категории</option>
+          <option *ngFor="let cat of categories" [value]="cat">
+            {{ cat }}
+          </option>
+        </select>
+
+        <select
+          [(ngModel)]="selectedStatus"
+          (change)="onFilterChange()"
+          class="form-control"
+        >
+          <option value="активное">Активные</option>
+          <option value="завершено">Завершенные</option>
+          <option value="отменено">Отмененные</option>
+          <option value="">Все</option>
+        </select>
+
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Поиск по названию или описанию..."
+          class="form-control"
+        />
+
+        <button (click)="onSearch()" class="btn btn-primary search-btn">
+          🔍 Поиск
+        </button>
+      </div>
+    </div>
+
+    <!-- Сообщения -->
+    <div *ngIf="loading" class="loading">Загрузка событий...</div>
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+    <!-- Список событий -->
+    <div class="events-grid" *ngIf="!loading && events.length > 0">
+      <div
+        *ngFor="let event of events"
+        class="event-card"
+        [routerLink]="['/events', event._id]"
+      >
+        <div
+          class="event-image"
+          [style.background-image]="getBackgroundImage(event)"
+        >
+          <span class="event-badge">{{ event.category }}</span>
+        </div>
+        <div class="event-content">
+          <h3 class="event-title">{{ event.title }}</h3>
+          <p class="event-date">📅 {{ formatDate(event.date) }}</p>
+          <p class="event-location">📍 {{ event.location }}</p>
+          <p class="event-description">
+            {{ event.description.substring(0, 100) }}...
+          </p>
+          <div class="event-footer">
+            <div
+              class="event-seats"
+              [class.seats-low]="event.availableSeats < 10"
+            >
+              {{ event.availableSeats }} / {{ event.capacity }}
+            </div>
+            <div class="event-price" *ngIf="event.price > 0">
+              {{ event.price }}
+            </div>
+            <div class="event-price" *ngIf="event.price === 0">Бесплатно</div>
+          </div>
+          <button
+            [routerLink]="['/events', event._id]"
+            class="btn btn-primary event-detail-btn"
+          >
+            Подробнее →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Пустое состояние -->
+    <div
+      *ngIf="!loading && events.length === 0"
+      class="text-center"
+      style="padding: 40px"
+    >
+      <h3>Событий не найдено</h3>
+      <p>Попробуйте изменить фильтры или поисковый запрос</p>
+    </div>
+
+    <!-- Пагинация -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        class="btn btn-secondary"
+      >
+        ← Назад
+      </button>
+      <span style="margin: 0 20px">
+        Страница {{ currentPage }} из {{ totalPages }} (Всего:
+        {{ totalEvents }})
+      </span>
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="btn btn-secondary"
+      >
+        Вперед →
+      </button>
+    </div>
+  </div>
+</div>

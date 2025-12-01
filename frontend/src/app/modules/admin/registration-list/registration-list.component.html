@@ -1,0 +1,155 @@
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Управление регистрациями</h1>
+    </div>
+
+    <!-- Фильтры и поиск -->
+    <div class="filters-section">
+      <select
+        [(ngModel)]="selectedStatus"
+        (change)="onFilterChange()"
+        class="form-control"
+      >
+        <option value="">Все статусы</option>
+        <option value="подтверждена">Подтверждена</option>
+        <option value="ожидание">Ожидание</option>
+        <option value="отменена">Отменена</option>
+      </select>
+
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+        placeholder="Поиск по имени, email или номеру регистрации..."
+        class="form-control"
+      />
+
+      <button (click)="onSearch()" class="btn btn-primary">🔍 Поиск</button>
+    </div>
+
+    <!-- Сообщения -->
+    <div *ngIf="loading" class="loading">Загрузка регистраций...</div>
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+    <!-- Карточки регистраций -->
+    <div
+      *ngIf="!loading && registrations.length > 0"
+      class="registrations-grid"
+    >
+      <div *ngFor="let registration of registrations" class="registration-card">
+        <div class="registration-header">
+          <div class="registration-number">
+            № {{ registration.registrationNumber }}
+          </div>
+          <span class="status-badge" [class]="'status-' + registration.status">
+            {{ registration.status }}
+          </span>
+        </div>
+
+        <div class="registration-body">
+          <div class="info-item">
+            <span class="info-label">👤 Участник</span>
+            <span class="info-value">
+              {{ registration.participant.firstName }}
+              {{ registration.participant.lastName }}
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">📧 Email</span>
+            <span class="info-value">{{ registration.participant.email }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">📱 Телефон</span>
+            <span class="info-value">{{ registration.participant.phone }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">🎯 Событие</span>
+            <span class="info-value" *ngIf="registration.event; else noEvent">
+              {{ getEventTitle(registration.event) }}
+            </span>
+            <ng-template #noEvent>
+              <span class="info-value event-deleted">Событие удалено</span>
+            </ng-template>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">✓ Посещение</span>
+            <span
+              class="info-value attended-badge"
+              [class.attended-yes]="registration.attended"
+              [class.attended-no]="!registration.attended"
+            >
+              {{ registration.attended ? "Посетил" : "Не отмечен" }}
+            </span>
+          </div>
+
+          <div class="info-item">
+            <span class="info-label">📅 Дата регистрации</span>
+            <span class="info-value">{{
+              formatDate(registration.createdAt)
+            }}</span>
+          </div>
+        </div>
+
+        <div class="registration-footer">
+          <button
+            *ngIf="
+              !registration.attended &&
+              registration.status === 'подтверждена' &&
+              registration._id
+            "
+            (click)="markAsAttended(registration._id)"
+            class="btn btn-sm btn-success"
+            title="Отметить как посетившего"
+          >
+            ✓ Отметить посещение
+          </button>
+          <button
+            *ngIf="registration.status !== 'отменена' && registration._id"
+            (click)="cancelRegistration(registration._id)"
+            class="btn btn-sm btn-danger"
+            title="Отменить регистрацию"
+          >
+            ✗ Отменить
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Пустое состояние -->
+    <div
+      *ngIf="!loading && registrations.length === 0"
+      class="text-center"
+      style="padding: 40px"
+    >
+      <h3>Регистраций не найдено</h3>
+      <p>Попробуйте изменить фильтры или поисковый запрос</p>
+    </div>
+
+    <!-- Пагинация -->
+    <div *ngIf="totalPages > 1" class="pagination">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        class="btn btn-secondary"
+      >
+        ← Назад
+      </button>
+      <span style="margin: 0 20px">
+        Страница {{ currentPage }} из {{ totalPages }} (Всего:
+        {{ totalRegistrations }})
+      </span>
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="btn btn-secondary"
+      >
+        Вперед →
+      </button>
+    </div>
+  </div>
+</div>

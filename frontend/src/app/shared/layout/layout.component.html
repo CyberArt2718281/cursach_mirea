@@ -1,0 +1,13 @@
+<app-navbar></app-navbar>
+<div class="container">
+  <router-outlet></router-outlet>
+</div>
+<app-footer></app-footer>
+<app-modal
+  [config]="modalConfig"
+  [isOpen]="isModalOpen"
+  (confirmed)="onModalConfirm()"
+  (cancelled)="onModalCancel()"
+  (closed)="onModalClose()"
+>
+</app-modal>
