@@ -5,17 +5,20 @@
 Автоматический CI/CD pipeline настроен через GitHub Actions и выполняет следующие этапы:
 
 ### 1. **Test Backend** - Тестирование Backend
+
 - Установка зависимостей Node.js
 - Запуск тестов backend
 - Выполняется при push в любую ветку
 
 ### 2. **Test Frontend** - Тестирование Frontend
+
 - Установка зависимостей Node.js
 - Запуск тестов Angular
 - Сборка frontend приложения
 - Выполняется при push в любую ветку
 
 ### 3. **Build and Push** - Сборка и публикация Docker образов
+
 - Сборка Docker образов для backend и frontend
 - Публикация образов в Docker Hub с тегами:
   - `latest` - последняя версия
@@ -23,6 +26,7 @@
 - Выполняется только при push в ветку `main`
 
 ### 4. **Deploy** - Деплой в Kubernetes
+
 - Обновление манифестов Kubernetes с новыми версиями образов
 - Применение конфигураций в кластер
 - Проверка успешности деплоя
@@ -37,24 +41,29 @@
 ### Перейдите в Settings → Secrets and variables → Actions → New repository secret
 
 ### 1. **DOCKER_USERNAME**
+
 - Ваш логин в Docker Hub
 - Пример: `cyberart2718281`
 
 ### 2. **DOCKER_PASSWORD**
+
 - Токен доступа или пароль Docker Hub
 - Создайте токен: https://hub.docker.com/settings/security
 - **Рекомендуется использовать Personal Access Token вместо пароля**
 
 ### 3. **KUBECONFIG** (опционально, для автоматического деплоя)
+
 - Base64-закодированный kubeconfig файл
 - Создание:
+
   ```bash
   # Linux/Mac
   cat ~/.kube/config | base64 -w 0
-  
+
   # Windows PowerShell
   [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((Get-Content ~/.kube/config -Raw)))
   ```
+
 - Вставьте полученную строку как значение секрета
 
 ---
@@ -76,6 +85,7 @@
 ### Автоматический запуск
 
 Pipeline запускается автоматически при:
+
 - Push в любую ветку → запускаются тесты
 - Push в ветку `main` → запускаются тесты, сборка, публикация и деплой
 
@@ -92,11 +102,13 @@ Pipeline запускается автоматически при:
 ## Проверка статуса деплоя
 
 ### В GitHub Actions
+
 1. Перейдите в **Actions** → выберите запущенный workflow
 2. Просмотрите логи каждого job
 3. Убедитесь, что все шаги выполнены успешно
 
 ### В Kubernetes
+
 ```bash
 # Проверка статуса подов
 kubectl get pods -n event-management
@@ -126,6 +138,7 @@ kubectl get ingress -n event-management
 3. Коммит и push изменений
 
 Альтернативно, можно деплоить вручную:
+
 ```bash
 # Локальный деплой после сборки образов
 cd k8s
@@ -152,23 +165,28 @@ kubectl apply -f autoscaling/
 ## Troubleshooting
 
 ### Ошибка: "docker login failed"
+
 - Проверьте правильность `DOCKER_USERNAME` и `DOCKER_PASSWORD`
 - Убедитесь, что используете Personal Access Token, а не пароль
 
 ### Ошибка: "kubectl: command not found"
+
 - Workflow использует `azure/setup-kubectl@v3` для установки kubectl
 - Проблема может быть с версией action
 
 ### Ошибка: "unauthorized: incorrect username or password"
+
 - Проверьте актуальность Docker Hub токена
 - Создайте новый токен и обновите secret
 
 ### Ошибка при деплое в Kubernetes
+
 - Проверьте правильность `KUBECONFIG`
 - Убедитесь, что кластер доступен извне
 - Проверьте права доступа kubeconfig
 
 ### Тесты не проходят
+
 - Убедитесь, что тесты проходят локально
 - Проверьте зависимости в `package.json`
 - Добавьте необходимые переменные окружения в workflow
@@ -182,19 +200,19 @@ kubectl apply -f autoscaling/
 Добавьте в конец файла `.github/workflows/ci-cd.yml`:
 
 ```yaml
-      - name: Notify Telegram
-        if: always()
-        uses: appleboy/telegram-action@master
-        with:
-          to: ${{ secrets.TELEGRAM_CHAT_ID }}
-          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          message: |
-            🚀 Deployment ${{ job.status }}
-            
-            Repository: ${{ github.repository }}
-            Branch: ${{ github.ref }}
-            Commit: ${{ github.sha }}
-            Author: ${{ github.actor }}
+- name: Notify Telegram
+  if: always()
+  uses: appleboy/telegram-action@master
+  with:
+    to: ${{ secrets.TELEGRAM_CHAT_ID }}
+    token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    message: |
+      🚀 Deployment ${{ job.status }}
+
+      Repository: ${{ github.repository }}
+      Branch: ${{ github.ref }}
+      Commit: ${{ github.sha }}
+      Author: ${{ github.actor }}
 ```
 
 ### Добавление линтинга
@@ -202,29 +220,29 @@ kubectl apply -f autoscaling/
 Добавьте job перед `test-backend` и `test-frontend`:
 
 ```yaml
-  lint:
-    name: Lint Code
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Lint backend
-        working-directory: ./backend
-        run: |
-          npm ci
-          npm run lint
-      
-      - name: Lint frontend
-        working-directory: ./frontend
-        run: |
-          npm ci
-          npm run lint
+lint:
+  name: Lint Code
+  runs-on: ubuntu-latest
+
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Lint backend
+      working-directory: ./backend
+      run: |
+        npm ci
+        npm run lint
+
+    - name: Lint frontend
+      working-directory: ./frontend
+      run: |
+        npm ci
+        npm run lint
 ```
 
 ---
@@ -243,6 +261,7 @@ kubectl apply -f autoscaling/
 ## Поддержка
 
 При возникновении проблем:
+
 1. Проверьте логи в GitHub Actions
 2. Убедитесь, что все secrets настроены правильно
 3. Проверьте доступность внешних сервисов (Docker Hub, Kubernetes)
