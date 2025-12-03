@@ -1,0 +1,128 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="navbar-wrapper">
+      <div class="navbar-left">
+        <a routerLink="/" class="navbar-brand">🎫 События</a>
+        <ul class="navbar-nav navbar-nav-left desktop-nav">
+          <li>
+            <a routerLink="/events" routerLinkActive="active" class="nav-link"
+              >Все события</a
+            >
+          </li>
+          <li *ngIf="authService.isAdmin()">
+            <a
+              routerLink="/admin/dashboard"
+              routerLinkActive="active"
+              class="nav-link"
+              >Панель</a
+            >
+          </li>
+          <li *ngIf="authService.isAdmin()">
+            <a
+              routerLink="/admin/registrations"
+              routerLinkActive="active"
+              class="nav-link"
+              >Регистрации</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="navbar-right">
+        <ul class="navbar-nav navbar-nav-right desktop-nav">
+          <li *ngIf="!authService.isAuthenticated()">
+            <a routerLink="/login" routerLinkActive="active" class="nav-link"
+              >Вход</a
+            >
+          </li>
+          <li *ngIf="authService.isAuthenticated()">
+            <a routerLink="/profile" routerLinkActive="active" class="nav-link">
+              👤 {{ (authService.currentUser$ | async)?.username || "Профиль" }}
+            </a>
+          </li>
+          <li *ngIf="authService.isAuthenticated()">
+            <a (click)="logout()" class="nav-link logout-link">Выход</a>
+          </li>
+        </ul>
+
+        <button
+          class="burger-menu"
+          (click)="toggleMobileMenu()"
+          [class.open]="isMobileMenuOpen"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div
+  class="mobile-menu-overlay"
+  [class.open]="isMobileMenuOpen"
+  (click)="closeMobileMenu()"
+></div>
+<div class="mobile-menu" [class.open]="isMobileMenuOpen">
+  <div class="mobile-menu-header">
+    <span class="mobile-menu-title">Меню</span>
+    <button class="mobile-menu-close" (click)="closeMobileMenu()">✕</button>
+  </div>
+
+  <div class="mobile-menu-content">
+    <a
+      routerLink="/events"
+      routerLinkActive="active"
+      class="mobile-nav-link"
+      (click)="closeMobileMenu()"
+    >
+      Все события
+    </a>
+
+    <ng-container *ngIf="authService.isAdmin()">
+      <a
+        routerLink="/admin/dashboard"
+        routerLinkActive="active"
+        class="mobile-nav-link"
+        (click)="closeMobileMenu()"
+      >
+        Панель
+      </a>
+      <a
+        routerLink="/admin/registrations"
+        routerLinkActive="active"
+        class="mobile-nav-link"
+        (click)="closeMobileMenu()"
+      >
+        Регистрации
+      </a>
+    </ng-container>
+
+    <div class="mobile-menu-divider"></div>
+
+    <ng-container *ngIf="!authService.isAuthenticated()">
+      <a
+        routerLink="/login"
+        routerLinkActive="active"
+        class="mobile-nav-link"
+        (click)="closeMobileMenu()"
+      >
+        Вход
+      </a>
+    </ng-container>
+
+    <ng-container *ngIf="authService.isAuthenticated()">
+      <a
+        routerLink="/profile"
+        routerLinkActive="active"
+        class="mobile-nav-link"
+        (click)="closeMobileMenu()"
+      >
+        👤 {{ (authService.currentUser$ | async)?.username || "Профиль" }}
+      </a>
+      <button (click)="logout(); closeMobileMenu()" class="mobile-btn-logout">
+        Выход
+      </button>
+    </ng-container>
+  </div>
+</div>

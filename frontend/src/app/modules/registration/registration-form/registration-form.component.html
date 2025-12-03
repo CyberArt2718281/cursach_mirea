@@ -1,0 +1,248 @@
+<div class="container">
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Регистрация на событие</h1>
+    </div>
+
+    <div *ngIf="event" class="event-info">
+      <h2>{{ event.title }}</h2>
+      <p><strong>📅 Дата:</strong> {{ formatDate(event.date) }}</p>
+      <p><strong>📍 Место:</strong> {{ event.location }}</p>
+      <p>
+        <strong>💺 Доступно мест:</strong> {{ event.availableSeats }} из
+        {{ event.capacity }}
+      </p>
+      <p *ngIf="event.price > 0">
+        <strong>💰 Стоимость:</strong> {{ event.price }} ₽
+      </p>
+      <p *ngIf="event.price === 0"><strong>💰 Стоимость:</strong> Бесплатно</p>
+    </div>
+
+    <div *ngIf="success" class="success-container">
+      <div class="success-header">
+        <div class="success-icon">✅</div>
+        <h2>Регистрация успешно завершена!</h2>
+      </div>
+
+      <div class="qr-code-section">
+        <h3>🎫 Ваш QR-код для входа</h3>
+        <div class="qr-code-wrapper">
+          <qrcode
+            [qrdata]="qrCodeData"
+            [width]="256"
+            [errorCorrectionLevel]="'M'"
+            [colorDark]="'#8b5cf6'"
+            [colorLight]="'#ffffff'"
+          >
+          </qrcode>
+        </div>
+        <p class="qr-hint">
+          📱 Сохраните скриншот или предъявите QR-код с телефона
+        </p>
+      </div>
+
+      <div class="registration-details">
+        <div class="detail-item">
+          <span class="detail-label">Номер регистрации:</span>
+          <span class="detail-value">{{ registrationNumber }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Email:</span>
+          <span class="detail-value">{{ participantEmail }}</span>
+        </div>
+      </div>
+
+      <div class="email-notification">
+        <div class="notification-icon">📧</div>
+        <div class="notification-text">
+          <strong>Письмо отправлено!</strong>
+          <p>
+            На адрес <strong>{{ participantEmail }}</strong> отправлено письмо с
+            QR-кодом и деталями регистрации. Проверьте папку "Входящие" или
+            "Спам".
+          </p>
+        </div>
+      </div>
+
+      <button (click)="router.navigate(['/events'])" class="btn btn-primary">
+        Вернуться к списку событий
+      </button>
+    </div>
+
+    <div *ngIf="error && !success" class="alert alert-danger">{{ error }}</div>
+
+    <form
+      *ngIf="!success && event && event.availableSeats > 0"
+      [formGroup]="registrationForm"
+      (ngSubmit)="onSubmit()"
+    >
+      <h2 style="margin-bottom: 20px">Данные участника</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">Имя *</label>
+          <input
+            type="text"
+            id="firstName"
+            formControlName="firstName"
+            class="form-control"
+            [class.error-border]="
+              registrationForm.get('firstName')?.invalid &&
+              registrationForm.get('firstName')?.touched
+            "
+          />
+          <div
+            class="error"
+            *ngIf="
+              registrationForm.get('firstName')?.invalid &&
+              registrationForm.get('firstName')?.touched
+            "
+          >
+            Имя обязательно (макс. 50 символов)
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Фамилия *</label>
+          <input
+            type="text"
+            id="lastName"
+            formControlName="lastName"
+            class="form-control"
+            [class.error-border]="
+              registrationForm.get('lastName')?.invalid &&
+              registrationForm.get('lastName')?.touched
+            "
+          />
+          <div
+            class="error"
+            *ngIf="
+              registrationForm.get('lastName')?.invalid &&
+              registrationForm.get('lastName')?.touched
+            "
+          >
+            Фамилия обязательна (макс. 50 символов)
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input
+            type="email"
+            id="email"
+            formControlName="email"
+            class="form-control"
+            [class.error-border]="
+              registrationForm.get('email')?.invalid &&
+              registrationForm.get('email')?.touched
+            "
+          />
+          <div
+            class="error"
+            *ngIf="
+              registrationForm.get('email')?.invalid &&
+              registrationForm.get('email')?.touched
+            "
+          >
+            Некорректный email
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Телефон *</label>
+          <input
+            type="tel"
+            id="phone"
+            formControlName="phone"
+            class="form-control"
+            placeholder="+7 (999) 123-45-67"
+            [class.error-border]="
+              registrationForm.get('phone')?.invalid &&
+              registrationForm.get('phone')?.touched
+            "
+          />
+          <div
+            class="error"
+            *ngIf="
+              registrationForm.get('phone')?.invalid &&
+              registrationForm.get('phone')?.touched
+            "
+          >
+            Телефон обязателен
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="organization">Организация</label>
+          <input
+            type="text"
+            id="organization"
+            formControlName="organization"
+            class="form-control"
+            placeholder="Название компании или организации"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="position">Должность</label>
+          <input
+            type="text"
+            id="position"
+            formControlName="position"
+            class="form-control"
+            placeholder="Ваша должность"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Примечания</label>
+        <textarea
+          id="notes"
+          formControlName="notes"
+          class="form-control"
+          rows="3"
+          placeholder="Дополнительная информация или пожелания"
+        >
+        </textarea>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="loading || registrationForm.invalid"
+        >
+          {{ loading ? "Регистрация..." : "Зарегистрироваться" }}
+        </button>
+        <button
+          type="button"
+          (click)="router.navigate(['/events', event._id])"
+          class="btn btn-secondary"
+        >
+          Отмена
+        </button>
+      </div>
+    </form>
+
+    <div
+      *ngIf="event && event.availableSeats === 0 && !success"
+      class="text-center"
+      style="padding: 40px"
+    >
+      <h3>😔 Все места заняты</h3>
+      <p>К сожалению, регистрация на это событие закрыта</p>
+      <button
+        (click)="router.navigate(['/events'])"
+        class="btn btn-primary"
+        style="margin-top: 15px"
+      >
+        Посмотреть другие события
+      </button>
+    </div>
+  </div>
+</div>

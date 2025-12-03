@@ -1,0 +1,150 @@
+.login-container {
+  max-width: 500px;
+  margin: 60px auto;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-border {
+  border-color: var(--danger) !important;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+.back-link-section {
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 2px solid rgba(139, 92, 246, 0.2);
+  text-align: center;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary-light);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: var(--primary-color);
+  transform: translateX(-5px);
+  box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+}
+
+.demo-info {
+  margin-top: 35px;
+  padding: 25px;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.15) 0%,
+    rgba(139, 92, 246, 0.15) 100%
+  );
+  border-radius: 16px;
+  border: 2px solid rgba(59, 130, 246, 0.3);
+  border-left: 5px solid var(--info);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+}
+
+.demo-info h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--info);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.demo-info h3::before {
+  content: "ℹ️";
+  font-size: 22px;
+}
+
+.demo-info p {
+  margin: 12px 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.demo-info code {
+  display: block;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 10px;
+  font-size: 13px;
+  color: var(--primary-light);
+  line-height: 1.9;
+  margin-top: 12px;
+  overflow-x: auto;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-family: "Courier New", monospace;
+}
+
+@media (max-width: 768px) {
+  .login-container {
+    max-width: 100%;
+    margin: 30px auto;
+    padding: 0 15px;
+  }
+
+  .demo-info {
+    padding: 15px;
+  }
+
+  .demo-info h3 {
+    font-size: 16px;
+  }
+
+  .demo-info p {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    margin: 20px auto;
+    padding: 0 10px;
+  }
+
+  .demo-info {
+    padding: 12px;
+  }
+
+  .demo-info code {
+    padding: 12px;
+    font-size: 11px;
+  }
+}
