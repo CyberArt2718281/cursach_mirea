@@ -37,8 +37,13 @@ export class LoginComponent {
     this.error = '';
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
-        this.router.navigate([this.returnUrl]);
+      next: (response) => {
+        // Перенаправление в зависимости от роли
+        if (response.user.role === 'admin') {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          this.router.navigate([this.returnUrl]);
+        }
       },
       error: (err) => {
         this.error = err.error?.error || 'Ошибка при входе';

@@ -2,11 +2,35 @@ const express = require('express');
 const router = express.Router();
 const Registration = require('../models/Registration');
 const Event = require('../models/Event');
-const { auth } = require('../middleware/auth');
+const { auth, adminAuth } = require('../middleware/auth');
 const { sendRegistrationEmail } = require('../utils/emailService');
 
-// GET /api/registrations - Получить все регистрации
-router.get('/', auth, async (req, res) => {
+// GET /api/registrations/my - Получить регистрации текущего пользователя
+router.get('/my', auth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    const registrations = await Registration.find({
+      'participant.email': user.email,
+      status: { $ne: 'отменена' }
+    })
+    .populate('event', 'title date location description maxAttendees category availableSeats')
+    .sort('-createdAt');
+
+    res.json({ registrations });
+  } catch (error) {
+    console.error('Ошибка при получении регистраций пользователя:', error);
+    res.status(500).json({ error: 'Ошибка при получении регистраций' });
+  }
+});
+
+// GET /api/registrations - Получить все регистрации (только admin)
+router.get('/', auth, adminAuth, async (req, res) => {
   try {
     const { eventId, status, page = 1, limit = 10 } = req.query;
     

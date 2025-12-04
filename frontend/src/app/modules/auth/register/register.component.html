@@ -1,0 +1,136 @@
+<div class="register-container">
+  <div class="register-card">
+    <h2 class="register-title">Регистрация</h2>
+    <p class="register-subtitle">Создайте аккаунт для участия в мероприятиях</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="username">Имя пользователя</label>
+        <input
+          type="text"
+          id="username"
+          formControlName="username"
+          class="form-control"
+          placeholder="Введите имя пользователя"
+          [class.error]="
+            registerForm.get('username')?.invalid &&
+            registerForm.get('username')?.touched
+          "
+        />
+        <div
+          class="error-message"
+          *ngIf="
+            registerForm.get('username')?.invalid &&
+            registerForm.get('username')?.touched
+          "
+        >
+          <span *ngIf="registerForm.get('username')?.errors?.['required']"
+            >Обязательное поле</span
+          >
+          <span *ngIf="registerForm.get('username')?.errors?.['minlength']"
+            >Минимум 3 символа</span
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control"
+          placeholder="Введите email"
+          [class.error]="
+            registerForm.get('email')?.invalid &&
+            registerForm.get('email')?.touched
+          "
+        />
+        <div
+          class="error-message"
+          *ngIf="
+            registerForm.get('email')?.invalid &&
+            registerForm.get('email')?.touched
+          "
+        >
+          <span *ngIf="registerForm.get('email')?.errors?.['required']"
+            >Обязательное поле</span
+          >
+          <span *ngIf="registerForm.get('email')?.errors?.['email']"
+            >Некорректный email</span
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Пароль</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control"
+          placeholder="Введите пароль"
+          [class.error]="
+            registerForm.get('password')?.invalid &&
+            registerForm.get('password')?.touched
+          "
+        />
+        <div
+          class="error-message"
+          *ngIf="
+            registerForm.get('password')?.invalid &&
+            registerForm.get('password')?.touched
+          "
+        >
+          <span *ngIf="registerForm.get('password')?.errors?.['required']"
+            >Обязательное поле</span
+          >
+          <span *ngIf="registerForm.get('password')?.errors?.['minlength']"
+            >Минимум 6 символов</span
+          >
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Подтвердите пароль</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          class="form-control"
+          placeholder="Повторите пароль"
+          [class.error]="
+            registerForm.get('confirmPassword')?.invalid &&
+            registerForm.get('confirmPassword')?.touched
+          "
+        />
+        <div
+          class="error-message"
+          *ngIf="
+            registerForm.get('confirmPassword')?.invalid &&
+            registerForm.get('confirmPassword')?.touched
+          "
+        >
+          <span *ngIf="registerForm.get('confirmPassword')?.errors?.['required']"
+            >Обязательное поле</span
+          >
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="registerForm.invalid || loading"
+      >
+        {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
+      </button>
+
+      <div class="register-footer">
+        <p>
+          Уже есть аккаунт?
+          <a routerLink="/login" class="link">Войти</a>
+        </p>
+      </div>
+    </form>
+  </div>
+</div>

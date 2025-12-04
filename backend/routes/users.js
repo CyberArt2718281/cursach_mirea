@@ -21,10 +21,15 @@ const generateTokens = (userId) => {
   return { accessToken, refreshToken };
 };
 
-// POST /api/users/register - Регистрация
+// POST /api/users/register - Регистрация (только для обычных пользователей)
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password, profile } = req.body;
+    const { username, email, password, profile, role } = req.body;
+
+    // Запрещаем регистрацию админов через публичный эндпоинт
+    if (role && role === 'admin') {
+      return res.status(403).json({ error: 'Регистрация администраторов запрещена. Используйте вход.' });
+    }
 
     // Проверяем, существует ли пользователь
     const existingUser = await User.findOne({
@@ -203,14 +208,24 @@ router.post('/refresh', async (req, res) => {
   }
 });
 
-// GET /api/users/profile - Получить профиль (требуется токен)
+// GET /api/users/profile - Получить профиль с регистрациями (требуется токен)
 router.get('/profile', auth, async (req, res) => {
   try {
+    const Registration = require('../models/Registration');
     const user = await User.findById(req.user.userId);
     
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
+
+    // Получаем регистрации пользователя (по email из профиля или email пользователя)
+    const userEmail = user.email;
+    const registrations = await Registration.find({
+      'participant.email': userEmail,
+      status: { $ne: 'отменена' }
+    })
+    .populate('event', 'title date location description maxAttendees category')
+    .sort('-createdAt');
 
     res.json({
       id: user._id,
@@ -220,7 +235,8 @@ router.get('/profile', auth, async (req, res) => {
       profile: user.profile,
       isActive: user.isActive,
       lastLogin: user.lastLogin,
-      createdAt: user.createdAt
+      createdAt: user.createdAt,
+      registrations: registrations
     });
   } catch (error) {
     console.error('Ошибка при получении профиля:', error);

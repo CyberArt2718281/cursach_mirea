@@ -14,6 +14,7 @@ export class UserProfileComponent implements OnInit {
   loading = false;
   error = '';
   currentUser: any = null;
+  registrations: any[] = [];
   initialValues: any = {};
 
   constructor(
@@ -38,16 +39,37 @@ export class UserProfileComponent implements OnInit {
   }
 
   loadProfile(): void {
-    this.authService.currentUser$.subscribe((user) => {
-      if (user) {
+    this.loading = true;
+    this.authService.getProfile().subscribe({
+      next: (user) => {
         this.currentUser = user;
+        this.registrations = user.registrations || [];
         this.profileForm.patchValue({
           username: user.username,
           email: user.email,
         });
         this.initialValues = this.profileForm.value;
+        this.loading = false;
+      },
+      error: async (err) => {
+        this.error = err.error?.error || 'Ошибка при загрузке профиля';
+        await this.modalService.error('Ошибка', this.error);
+        this.loading = false;
       }
     });
+  }
+
+  getEventDate(date: string): string {
+    return new Date(date).toLocaleDateString('ru-RU');
+  }
+
+  getStatusClass(status: string): string {
+    switch(status) {
+      case 'подтверждена': return 'status-confirmed';
+      case 'ожидает': return 'status-pending';
+      case 'отменена': return 'status-cancelled';
+      default: return '';
+    }
   }
 
   isProfileChanged(): boolean {

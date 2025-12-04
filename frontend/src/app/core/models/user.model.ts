@@ -15,6 +15,7 @@ export interface User {
   lastLogin?: Date | string;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  registrations?: any[];
 }
 
 export interface LoginCredentials {

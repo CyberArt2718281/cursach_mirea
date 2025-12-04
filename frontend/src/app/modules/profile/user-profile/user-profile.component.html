@@ -149,4 +149,30 @@
       </button>
     </form>
   </div>
+
+  <!-- Мои регистрации на события -->
+  <div class="profile-card">
+    <h3>Мои регистрации на события</h3>
+    <div *ngIf="loading" class="loading-message">Загрузка...</div>
+    <div *ngIf="!loading && registrations.length === 0" class="no-data">
+      У вас пока нет зарегистрированных событий
+    </div>
+    <div *ngIf="!loading && registrations.length > 0" class="registrations-list">
+      <div class="registration-item" *ngFor="let reg of registrations">
+        <div class="registration-header">
+          <h4>{{ reg.event?.title || 'Без названия' }}</h4>
+          <span class="badge" [ngClass]="getStatusClass(reg.status)">
+            {{ reg.status }}
+          </span>
+        </div>
+        <div class="registration-details">
+          <p><strong>Дата события:</strong> {{ getEventDate(reg.event?.date) }}</p>
+          <p *ngIf="reg.event?.location"><strong>Место:</strong> {{ reg.event.location }}</p>
+          <p><strong>Категория:</strong> {{ reg.event?.category || 'Не указана' }}</p>
+          <p><strong>Номер регистрации:</strong> {{ reg.registrationNumber }}</p>
+          <p><strong>Дата регистрации:</strong> {{ getEventDate(reg.createdAt) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

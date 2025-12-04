@@ -34,6 +34,11 @@
               >Вход</a
             >
           </li>
+          <li *ngIf="!authService.isAuthenticated()">
+            <a routerLink="/login/register" routerLinkActive="active" class="nav-link"
+              >Регистрация</a
+            >
+          </li>
           <li *ngIf="authService.isAuthenticated()">
             <a routerLink="/profile" routerLinkActive="active" class="nav-link">
               👤 {{ (authService.currentUser$ | async)?.username || "Профиль" }}
@@ -108,6 +113,14 @@
         (click)="closeMobileMenu()"
       >
         Вход
+      </a>
+      <a
+        routerLink="/login/register"
+        routerLinkActive="active"
+        class="mobile-nav-link"
+        (click)="closeMobileMenu()"
+      >
+        Регистрация
       </a>
     </ng-container>
 
